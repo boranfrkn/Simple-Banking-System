@@ -1,6 +1,7 @@
 import random
 new_card = None
 new_pin = None
+card_checksum = None
 logined = False
 def menu_one():
     print('''
@@ -15,10 +16,12 @@ def menu_two():
 0. Exit
     ''')
 def create_card():
+    global new_card
     card_iin = 400000
     card_id = random.randint(100000000,999999999)
-    card_checksum = random.randint(0,9)
-    new_card = str(card_iin) + str(card_id) + str(card_checksum)
+    new_card = str(card_iin) + str(card_id)
+    card_checksum = luhn_algorithm()
+    new_card = new_card + str(card_checksum)
     print(f'''
 Your card has been created
 Your card number:
@@ -31,7 +34,6 @@ def create_pin():
     ''')
     return new_pin
 def login():
-    print(new_card, new_pin)
     ent_card_number = str(input('Enter your card number:'))
     ent_pin = str(input("Enter your PIN:"))
     while ent_card_number != new_card or ent_pin != new_pin:
@@ -42,7 +44,28 @@ def login():
         global logined
         logined = True
 
-
+def luhn_algorithm():
+    global card_checksum
+    sum = 0
+    luhn = new_card[:]
+    for index, value in enumerate(luhn):
+        n = int(value)
+        if (index + 1) % 2 == 1:
+            n *= 2
+            if n > 9:
+                n -= 9
+            sum += n
+        else:
+            sum += n
+    if sum % 10 == 0:
+        print(sum)
+        card_checksum = 0
+        return card_checksum
+    else:
+        for i in range(0,10):
+            if (sum + i) % 10 == 0:
+                card_checksum = i
+                return i
 
 if __name__ == '__main__':
     menu_one()
@@ -82,3 +105,4 @@ if __name__ == '__main__':
         else:
             break
     print("Bye!")
+
