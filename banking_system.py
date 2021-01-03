@@ -1,8 +1,22 @@
 import random
+import sqlite3
+logined = False
 class CreateCard:
     def __init__(self):
+        self.database = self.create_database()
         self.card_number = self.create_card()
         self.pin = self.create_pin()
+        self.add_pin_number = self.add_pin_number()
+    def create_database(self):
+        self.connect = sqlite3.connect("card.s3db")
+        self.cursor = self.connect.cursor()
+        self.cursor.execute("""CREATE TABLE IF NOT EXISTS card
+        (id INTEGER,
+        number TEXT,
+        pin TEXT,
+        balance INTEGER DEFAULT 0);
+        """)
+        self.connect.commit()
     def create_card(self):
         card_iin = 400000
         card_id = random.randint(00000000, 999999999)
@@ -22,6 +36,9 @@ Your card PIN:
 {self.pin}
             ''')
         return self.pin
+    def add_pin_number(self):
+        self.cursor.execute("INSERT INTO card VALUES (?, ?, ?, ?)", (1 , self.card_number, self.pin, 0))
+        self.connect.commit()
     def luhn_algorithm(self):
         sum = 0
         luhn = self.card_number[:]
@@ -42,8 +59,6 @@ Your card PIN:
                 if (sum + i) % 10 == 0:
                     self.card_checksum = i
                     return self.card_checksum
-
-logined = False
 class Login:
     def __init__(self):
         self.login = self.login()
@@ -51,12 +66,14 @@ class Login:
         global logined
         ent_card_number = str(input("Enter your card number:"))
         ent_pin = str(input("Enter your PIN:"))
-        while ent_card_number != card_number or ent_pin != card_pin:
-            print("Wrong card number or PIN!")
-            break
-        else:
+        self.connect = sqlite3.connect("card.s3db")
+        self.cursor = self.connect.cursor()
+        self.cursor.execute("SELECT * FROM card WHERE number = ? AND pin = ?", (ent_card_number, ent_pin))
+        if self.cursor.fetchall():
             print("You have successfully logged in!")
             logined = True
+        else:
+            print("Wrong card number or PIN!")
 if __name__ == '__main__':
     def menu_one():
         print('''
