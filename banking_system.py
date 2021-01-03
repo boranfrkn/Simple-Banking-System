@@ -48,8 +48,6 @@ class Login:
     def __init__(self):
         self.login = self.login()
     def login(self):
-        global card_number
-        global card_pin
         global logined
         ent_card_number = str(input("Enter your card number:"))
         ent_pin = str(input("Enter your PIN:"))
